@@ -982,7 +982,7 @@ class AllDataBoxShortcut extends React.PureComponent {
     super(props);
     this.state = {
       selectedUser: null,
-      selectedUserId: null,
+      selectedUserId: null
     };
     this.getMatches = this.getMatches.bind(this);
     this.onDataSelect = this.onDataSelect.bind(this);
@@ -1001,12 +1001,15 @@ class AllDataBoxShortcut extends React.PureComponent {
       setIsLoading(true);
 
       //search for shortcuts
-      let result = setupLinks.filter(item => item.label.toLowerCase().includes(shortcutSearch.toLowerCase()));
-      result.forEach(element => {
-        element.detail = element.section;
-        element.name = element.link;
-        element.Id = element.name;
-      });
+      let result = setupLinks
+        .filter(item => item.label.toLowerCase().includes(shortcutSearch.toLowerCase())
+          || (item.alias && item.alias.toLowerCase().includes(shortcutSearch.toLowerCase())))
+        .map(item => ({
+          detail: item.section,
+          name: item.link,
+          Id: item.name,
+          ...item
+        }));
 
       let metadataShortcutSearch = localStorage.getItem("metadataShortcutSearch");
       if (metadataShortcutSearch == null) {
@@ -1108,7 +1111,15 @@ class AllDataBoxShortcut extends React.PureComponent {
             text: value.name,
             start: value.name.toLowerCase().indexOf(shortcutQuery.toLowerCase()),
             length: shortcutQuery.length
-          }))
+          }),
+          value.alias && h("div", {className: "autocomplete-item-sub small", key: "sub"},
+            h(MarkSubstring, {
+              text: value.alias,
+              start: value.alias.toLowerCase().indexOf(shortcutQuery.toLowerCase()),
+              length: shortcutQuery.length
+            })
+          )
+        )
       ]
     }));
   }
@@ -1116,14 +1127,20 @@ class AllDataBoxShortcut extends React.PureComponent {
   render() {
     let {selectedUser} = this.state;
     let {sfHost, linkTarget, contextOrgId, contextUserId, contextPath} = this.props;
-
+    let hostArg = new URLSearchParams();
+    hostArg.set("host", sfHost);
     return (
       h("div", {ref: "shortcutsBox", className: "users-box"},
         h(AllDataSearch, {ref: "allDataSearch", getMatches: this.getMatches, onDataSelect: this.onDataSelect, inputSearchDelay: 200, placeholderText: "Quick find links, shortcuts", resultRender: this.resultRender}),
         h("div", {className: "all-data-box-inner" + (!selectedUser ? " empty" : "")},
           selectedUser
             ? h(UserDetails, {user: selectedUser, sfHost, contextOrgId, currentUserId: contextUserId, linkTarget, contextPath})
-            : h("div", {className: "center"}, "No shortcut found")
+            : h("div", {className: "center"},
+              h("p", {className: "center"}, "No shortcuts found"),
+              h("p", {className: "center"},
+                h("a", {href: "shortcuts.html?" + hostArg, target: linkTarget}, "Explore All")
+              )
+            )
         ))
     );
   }

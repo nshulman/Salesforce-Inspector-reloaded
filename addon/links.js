@@ -356,7 +356,7 @@ export let setupLinks = [
   {label: "Private Connect", link: "/lightning/setup/PrivateConnect/home", section: "Settings > Security", prod: false},
   {label: "Remote Site Settings", link: "/lightning/setup/SecurityRemoteProxy/home", section: "Settings > Security", prod: false},
   {label: "Session Management", link: "/lightning/setup/SessionManagementPage/home", section: "Settings > Security", prod: false},
-  {label: "Session Settings", link: "/lightning/setup/SecuritySession/home", section: "Settings > Security", prod: false},
+  {label: "Session Settings", alias: "Org Wide Defaults", link: "/lightning/setup/SecuritySession/home", section: "Settings > Security", prod: false},
   {label: "Sharing Settings", link: "/lightning/setup/SecuritySharing/home", section: "Settings > Security", prod: false},
   {label: "Trusted URLs for Redirects", link: "/lightning/setup/SecurityRedirectWhitelistUrl/home", section: "Settings > Security", prod: false},
   {label: "View Setup Audit Trail", link: "/lightning/setup/SecurityEvents/home", section: "Settings > Security", prod: false},
