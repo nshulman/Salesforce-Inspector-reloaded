@@ -99,8 +99,68 @@ function initButton(sfHost, inInspector) {
     buttonElement.appendChild(img);
   }
 
-  function loadPopup() {
+  // Tilt to show move is allowed
+  function tilt(el, degrees) {
+    el.style.transform = `rotate(${degrees}deg)`;
+    el.style.mozTransform = `rotate(${degrees}deg)`;
+    el.style.webkitTransform = `rotate(${degrees}deg)`;
+    el.style.msTransform = `rotate(${degrees}deg)`;
+  }
+
+  let moveButton = false;
+  let offset = 0;
+  let sliderTimeout = null;
+  let posTimeout = null;
+  function loadPopup() {      
+    btn.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      // short hold required to slide the button
+      sliderTimeout = setTimeout(() => {
+        // Track distance from click to button
+        const rect = rootEl.getBoundingClientRect();
+        offset = rect.top - e.clientY;
+        moveButton = true;
+        tilt(rootEl, -12);
+      }, 300);
+    });
+
+    // track in window to prevent button from getting stuck
+    window.addEventListener("mouseup", (e) => {
+      e.preventDefault();
+      clearTimeout(sliderTimeout);
+      // console.log("up", e.clientY);
+      // 100ms delay to prevent click event from firing
+      setTimeout(() => {
+        moveButton = false;
+        tilt(rootEl, 0);
+      }, 100);
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      e.preventDefault();
+      if (!moveButton) {
+        return;
+      }
+      // move in realtime
+      rootEl.style.top = (e.clientY + offset) + "px";
+      // debounce storing the position
+      clearTimeout(posTimeout);
+      posTimeout = setTimeout(() => {
+        // calc location as percent between 0 and 95
+        let buttonPos = Math.round((e.clientY + offset) / window.innerHeight * 100);        
+        buttonPos = Math.min(95, Math.max(0, buttonPos));
+        popupEl.contentWindow.postMessage({
+          updateLocalStorage: true,
+          key: "popupArrowPosition",
+          value: JSON.stringify(buttonPos)
+        }, "*");
+      }, 300);
+    });
+
     btn.addEventListener("click", () => {
+      if (moveButton) {
+        return;
+      } 
       if (!rootEl.classList.contains("insext-active")) {
         openPopup();
       } else {
