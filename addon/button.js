@@ -107,28 +107,44 @@ function initButton(sfHost, inInspector) {
     el.style.msTransform = `rotate(${degrees}deg)`;
   }
 
+  function calcOrientation(e) {
+    let x = e.clientX / window.innerWidth * 100;
+    let y = e.clientY / window.innerHeight * 100;
+    let orientation = "vertical";
+    if (y > 95 && x <= 98) {
+      orientation = "horizontal";
+    }
+    return orientation;
+  }
+
   let moveButton = false;
   let offset = 0;
   let sliderTimeout = null;
   let posTimeout = null;
   function loadPopup() {      
     btn.addEventListener("mousedown", (e) => {
+      if (localStorage.getItem("allowPopupDrag") == "false") {
+        return;
+      }
       e.preventDefault();
-      // short hold required to slide the button
+      // allow button drag after brief hold
       sliderTimeout = setTimeout(() => {
-        // Track distance from click to button
         const rect = rootEl.getBoundingClientRect();
         offset = rect.top - e.clientY;
         moveButton = true;
-        tilt(rootEl, -12);
+        tilt(rootEl, -4);
       }, 300);
     });
 
     // track in window to prevent button from getting stuck
     window.addEventListener("mouseup", (e) => {
+      if (localStorage.getItem("allowPopupDrag") === "false" || !moveButton) {
+        return;
+      }
       e.preventDefault();
       clearTimeout(sliderTimeout);
-      // console.log("up", e.clientY);
+      console.log("xy", e.clientX, e.clientY);
+      console.log("o", calcOrientation(e));
       // 100ms delay to prevent click event from firing
       setTimeout(() => {
         moveButton = false;
@@ -136,19 +152,25 @@ function initButton(sfHost, inInspector) {
       }, 100);
     });
 
+    // track movement to recalculate button position
     window.addEventListener("mousemove", (e) => {
+      if (localStorage.getItem("allowPopupDrag") === "false") {
+        return;
+      }
       e.preventDefault();
       if (!moveButton) {
         return;
       }
-      // move in realtime
+      // move in realtime and debounce storing of the position
       rootEl.style.top = (e.clientY + offset) + "px";
-      // debounce storing the position
       clearTimeout(posTimeout);
       posTimeout = setTimeout(() => {
+        
         // calc location as percent between 0 and 95
-        let buttonPos = Math.round((e.clientY + offset) / window.innerHeight * 100);        
-        buttonPos = Math.min(95, Math.max(0, buttonPos));
+        let buttonY = Math.round((e.clientY + offset) / window.innerHeight * 100);
+        let buttonX = Math.round((e.clientX) / window.innerWidth * 100);
+        // let buttonPos = iFrameLocalStorage.popupArrowOrientation == "horizontal" ? buttonX : buttonY;
+        buttonY = Math.min(95, Math.max(0, buttonY));
         popupEl.contentWindow.postMessage({
           updateLocalStorage: true,
           key: "popupArrowPosition",

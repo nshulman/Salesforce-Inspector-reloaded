@@ -74,6 +74,7 @@ class OptionsTabSelector extends React.Component {
         title: "User Experience",
         content: [
           {option: ArrowButtonOption, props: {key: 1}},
+          {option: Option, props: {type: "toggle", title: "Popup arrow button - allow drag and drop", key: "allowPopupDrag"}},
           {option: Option, props: {type: "toggle", title: "Flow Scrollability", key: "scrollOnFlowBuilder"}},
           {option: Option, props: {type: "toggle", title: "Inspect page - Show table borders", key: "displayInspectTableBorders"}},
           {option: Option, props: {type: "toggle", title: "Always open links in a new tab", key: "openLinksInNewTab"}},
@@ -182,13 +183,17 @@ class ArrowButtonOption extends React.Component {
     this.onChangeArrowPosition = this.onChangeArrowPosition.bind(this);
     this.state = {
       arrowButtonOrientation: localStorage.getItem("popupArrowOrientation") ? localStorage.getItem("popupArrowOrientation") : "vertical",
-      arrowButtonPosition: localStorage.getItem("popupArrowPosition") ? localStorage.getItem("popupArrowPosition") : "20"
+      arrowButtonPosition: localStorage.getItem("popupArrowPosition") ? localStorage.getItem("popupArrowPosition") : "20",
+      vertical: localStorage.getItem("popupArrowOrientation") !== "horizontal",
+      horizontal: localStorage.getItem("popupArrowOrientation") === "horizontal",
     };
     this.timeout;
   }
 
   onChangeArrowOrientation(e) {
-    let orientation = e.target.value;
+    // let orientation = e.target.value;
+    console.log('e', e.target.dataset.orientation, this.state.vertical);
+    let orientation = this.state.vertical ? "horizontal" : "vertical";
     this.setState({arrowButtonOrientation: orientation});
     localStorage.setItem("popupArrowOrientation", orientation);
     window.location.reload();
@@ -207,18 +212,23 @@ class ArrowButtonOption extends React.Component {
       window.location.reload();
     }, 1000);
   }
+  
 
   render() {
-    return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_xx-small"},
+    return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_x-small"},
       h("div", {className: "slds-col slds-size_4-of-12 text-align-middle"},
         h("span", {}, "Popup arrow button orientation and position")
       ),
-      h("div", {className: "slds-col slds-size_8-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},
-        h("label", {className: "slds-col slds-size_2-of-12 slds-text-align_right"}, "Orientation:"),
-        h("select", {className: "slds-col slds-size_2-of-12 slds-combobox__form-element slds-input combobox-container", defaultValue: this.state.arrowButtonOrientation, name: "arrowPosition", id: "arrowPosition", onChange: this.onChangeArrowOrientation},
-          h("option", {value: "horizontal"}, "Horizontal"),
-          h("option", {value: "vertical"}, "Vertical")
-        ),
+      h("div", {className: "slds-col slds-size_8-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},             
+      h("label", {className: "slds-col slds-size_2-of-12 slds-text-align_right"}, "Orientation:"),
+        h("span", {title: "Vertical - display popup on right side of screen"},
+          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", viewBox: "0 0 52 52", style: {marginRight: "10px", borderRight: this.state.vertical ? "2px solid #0176d3" : "0"}, dataOrientation: "vertical", onClick: this.onChangeArrowOrientation},
+            h("use", {xlinkHref: "symbols.svg#toggle_panel_right", style: {fill: this.state.vertical ? "#0176d3" : "#9c9c9c"}})
+          )),
+        h("span", {title: "Horizontal - display popup at bottom of screen"},
+          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", label: "Horizontal", viewBox: "0 0 52 52", style: {marginRight: "10px", borderBottom: this.state.horizontal ? "2px solid #0176d3" : "0"}, onClick: this.onChangeArrowOrientation},
+              h("use", {xlinkHref: "symbols.svg#toggle_panel_bottom", style: {fill: this.state.horizontal ? "#0176d3" : "#9c9c9c"}})
+          )),
         h("label", {className: "slds-m-left_medium slds-col slds-size_2-of-12 slds-text-align_right", htmlFor: "arrowPositionSlider"}, "Position (%):"),
         h("div", {className: "slds-form-element__control slider-container slds-col slds-size_4-of-12"},
           h("div", {className: "slds-slider"},
