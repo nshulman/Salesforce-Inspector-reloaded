@@ -2,6 +2,8 @@
 /* global showStdPageDetails */
 "use strict";
 
+
+
 // sfdcBody = normal Salesforce page
 // ApexCSIPage = Developer Console
 // auraLoadingBox = Lightning / Salesforce1
@@ -119,7 +121,22 @@ function initButton(sfHost, inInspector) {
   let offset = 0;
   let sliderTimeout = null;
   let posTimeout = null;
-  function loadPopup() {      
+  function loadPopup() {
+    window.addEventListener("message", e => {
+      if (e.isTrusted === false || e.data?.message !== "updatePopupArrowOrientation") {
+        return;
+      }
+      const {pos, orientation} = e.data;
+      console.log("message", e.data, e.isTrusted, pos, orientation);
+    });
+
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      console.log('request', request);
+      if (request.message === "updatePopupArrowOrientation") {
+        rootEl.top = 0;
+      }
+    });
+
     btn.addEventListener("mousedown", (e) => {
       if (localStorage.getItem("allowPopupDrag") == "false") {
         return;
@@ -167,7 +184,7 @@ function initButton(sfHost, inInspector) {
         // calc location as percent between 0 and 95
         let buttonY = Math.round((e.clientY + offset) / window.innerHeight * 100);
         let buttonX = Math.round((e.clientX) / window.innerWidth * 100);
-        // let buttonPos = iFrameLocalStorage.popupArrowOrientation == "horizontal" ? buttonX : buttonY;
+        let buttonPos = iFrameLocalStorage.popupArrowOrientation == "horizontal" ? buttonX : buttonY;
         buttonY = Math.min(95, Math.max(0, buttonY));
         popupEl.contentWindow.postMessage({
           updateLocalStorage: true,
