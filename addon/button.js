@@ -26,9 +26,7 @@ function initButton(sfHost, inInspector) {
   rootEl.appendChild(btn);
   loadPopup();
   document.body.appendChild(rootEl);
-
   addFlowScrollability();
-
 
   function addFlowScrollability(popupEl) {
     const currentUrl = window.location.href;
