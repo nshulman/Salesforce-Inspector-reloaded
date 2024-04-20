@@ -190,14 +190,28 @@ class ArrowButtonOption extends React.Component {
     this.timeout;
   }
 
+  sendUpdateMessage() {
+    parent.postMessage({
+      insextInitRequest: true,
+      iFrameLocalStorage: {
+        popupArrowOrientation: localStorage.getItem("popupArrowOrientation"),
+        popupArrowPosition: JSON.parse(localStorage.getItem("popupArrowPosition")),
+        scrollOnFlowBuilder: JSON.parse(localStorage.getItem("scrollOnFlowBuilder"))
+      }
+    }, "*");
+  }
+
   onChangeArrowOrientation(e) {
     // let orientation = e.target.value;
     console.log('e', e.target.dataset.orientation, this.state.vertical);
     let orientation = this.state.vertical ? "horizontal" : "vertical";
     this.setState({arrowButtonOrientation: orientation});    
     localStorage.setItem("popupArrowOrientation", orientation);
-    window.postMessage({message: "updatePopupArrowOrientation", pos: this.state.arrowButtonPosition, orientation});    
+    this.sendUpdateMessage();
+    // parent????
+    //window.postMessage({message: "updatePopupArrowOrientation", pos: this.state.arrowButtonPosition, orientation});    
     // window.location.reload();
+
   }
 
   onChangeArrowPosition(e) {
@@ -210,8 +224,7 @@ class ArrowButtonOption extends React.Component {
     this.timeout = setTimeout(() => {
       console.log("[SFInspector] Setting Arrow Position: ", position);
       localStorage.setItem("popupArrowPosition", position);
-      window.postMessage({message: "updatePopupArrowOrientation", pos: position, orientation: this.state.arrowButtonOrientation});
-      // window.location.reload();
+      this.sendUpdateMessage();
     }, 1000);
   }
   
@@ -224,7 +237,7 @@ class ArrowButtonOption extends React.Component {
       h("div", {className: "slds-col slds-size_8-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},             
       h("label", {className: "slds-col slds-size_2-of-12 slds-text-align_right"}, "Orientation:"),
         h("span", {title: "Vertical - display popup on right side of screen"},
-          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", viewBox: "0 0 52 52", style: {marginRight: "10px", borderRight: this.state.vertical ? "2px solid #0176d3" : "0"}, dataOrientation: "vertical", onClick: this.onChangeArrowOrientation},
+          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", viewBox: "0 0 52 52", style: {marginRight: "10px", borderRight: this.state.vertical ? "2px solid #0176d3" : "0"}, onClick: this.onChangeArrowOrientation},
             h("use", {xlinkHref: "symbols.svg#toggle_panel_right", style: {fill: this.state.vertical ? "#0176d3" : "#9c9c9c"}})
           )),
         h("span", {title: "Horizontal - display popup at bottom of screen"},
