@@ -74,10 +74,10 @@ class OptionsTabSelector extends React.Component {
         title: "User Experience",
         content: [
           {option: ArrowButtonOption, props: {key: 1}},
-          {option: Option, props: {type: "toggle", title: "Popup arrow button - allow drag and drop", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen"}},
-          {option: Option, props: {type: "toggle", title: "Flow Scrollability", key: "scrollOnFlowBuilder", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen Allow drag and drop of the popup arrow button to a different location on the screen Allow drag and drop of the popup arrow button to a different location on the screen"}},
-          {option: Option, props: {type: "toggle", title: "Inspect page - Show table borders", key: "displayInspectTableBorders", tooltip: "short!"}},
-          {option: Option, props: {type: "toggle", title: "Always open links in a new tab", key: "openLinksInNewTab", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen"}},
+          {option: Option, props: {type: "toggle", title: "Popup arrow button - allow drag and drop", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen, detect orientation automatically, and save the new position"}},
+          {option: Option, props: {type: "toggle", title: "Flow Scrollability", key: "scrollOnFlowBuilder"}},
+          {option: Option, props: {type: "toggle", title: "Inspect page - Show table borders", key: "displayInspectTableBorders"}},
+          {option: Option, props: {type: "toggle", title: "Always open links in a new tab", key: "openLinksInNewTab"}},
           {option: Option, props: {type: "toggle", title: "Open Permission Set / Permission Set Group summary from shortcuts", key: "enablePermSetSummary"}},
           {option: Option, props: {type: "toggle", title: "Search metadata from Shortcut tab", key: "metadataShortcutSearch"}},
           {option: Option, props: {type: "toggle", title: "Disable query input autofocus", key: "disableQueryInputAutoFocus"}},
@@ -320,84 +320,68 @@ class Tooltip extends React.Component {
     this.tooltip = props.tooltip;
     this.tipKey = props.idKey + "_tooltip";
     this.iconKey = props.idKey + "_icon";
-    this.onClick = this.onShow.bind(this);
+    this.onClick = this.onClick.bind(this);
     this.onHover = this.onHover.bind(this);
     this.onHide = this.onHide.bind(this);
     this.showTimer = null;
     this.state = {
       isTooltipVisible: false,
-      position: {x:"0", y:"0"}
+      position: {x:"0", y:"0"},
+      opacity: 0
     }
   }
 
-  getTooltipPosition() {
+  setTooltipPosition() {
     const toolTip = document.querySelectorAll(`[id='${this.tipKey}']`)[0];
-    const elRect = document.querySelectorAll(`[id='${this.iconKey}']`)[0].getBoundingClientRect();    
-    toolTip.style.display = "block"; // force visibility so position can be calculated
+    const elRect = document.querySelectorAll(`[id='${this.iconKey}']`)[0].getBoundingClientRect();        
     const toolTipRect = toolTip.getBoundingClientRect();
-    const x = `${elRect.left - 30}px`; // nubbin offset
+    const x = `${elRect.left - 27}px`; // nubbin offset
     const y = `${elRect.top - toolTipRect.height - 74}px`; // fixed offset
-    return {x, y};
+    this.setState({position: {x, y}, opacity: 1});    
+  }
+
+  onClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    clearTimeout(this.showTimer);
+    this.show();
   }
 
   onHover() {    
     this.showTimer = setTimeout(() => {
-      this.onShow();
-    }, 500);
+      this.show();
+    }, 400);
   }
 
-  onShow() {
-    console.log('show', this.key);    
-    const position = this.getTooltipPosition();
-    console.log('position', position );
-    this.setState({isTooltipVisible: true, position});
+  show() {    
+    this.setState({isTooltipVisible: true});
+    this.setTooltipPosition();    
   }
 
   onHide() {
-    console.log('hide');
     clearTimeout(this.showTimer);
     this.setState({isTooltipVisible: false});
-    //this.setState({isTooltipVisible: false});
   }
-
 
   render() {
     if (!this.tooltip) {
       return null;
     }
 
-    
-// h("div", {style: {paddingLeft: "2rem", paddingTop: "5rem", position: "relative"}},
-    return h("span", {style: {marginLeft: "5px"}},
-              h("a", {href: "#", onClick: this.onShow, onMouseEnter: this.onHover, onMouseLeave: this.onHide, id: this.iconKey},
+    return h("span", {style: {marginLeft: "2px"}},
+              h("a", {href: "#", onClick: this.onClick, onMouseEnter: this.onHover, onMouseLeave: this.onHide, id: this.iconKey},
                 h("span", {className: "slds-icon_container slds-icon-utility-info"},
-                  h("svg", {className: "slds-icon_xx-small slds-icon-text-default", viewBox: "0 0 40 40", style: {verticalAlign: "unset"}},
+                  h("svg", {className: "slds-icon_xx-small slds-icon-text-default", viewBox: "0 0 40 40", style: {verticalAlign: "unset", margin: "3px"}},
                     h("use", {xlinkHref: "symbols.svg#info", fill: "#9c9c9c"}),
                   )),
                 h("span", {className: "slds-assistive-text"}, "Learn more")
               ),
               h("div", {className: "slds-popover slds-popover_tooltip slds-nubbin_bottom-left", role: "tooltip", id: this.tipKey, 
-                style: {position: "absolute", left: this.state.position.x, top: this.state.position.y, display: this.state.isTooltipVisible ? "block" : "none"}},
+                style: {position: "absolute", left: this.state.position.x, top: this.state.position.y, opacity: this.state.opacity, display: this.state.isTooltipVisible ? "block" : "none"}},
                 h("div", {className: "slds-popover__body"}, this.props.tooltip)
               )
             );
-            // 32px top, 249px left calc from element
-
-            return h("section", {className: "slds-popover slds-nubbin_left-top", role: "dialog"},
-      h("div", {className: "slds-popover__body"}, this.tooltip)
-    );
-
-
-    
-    
-    return h("span", {className: "slds-p-left_xx-small", position: "relative", zIndex: "999"},
-              h("svg", {className: "slds-button slds-icon_x-small slds-icon-text-default", viewBox: "0 0 25 25"},
-                h("use", {xlinkHref: "symbols.svg#info", fill: "#9c9c9c"}),
-              ));
-    }
-
-    
-    
+  }
 }
 
 class Option extends React.Component {
