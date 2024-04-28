@@ -149,7 +149,7 @@ function initButton(sfHost, inInspector) {
   let offset = 0;
   let sliderTimeout = null;
   let posTimeout = null;
-=======
+
   function setFavicon(sfHost){
     let fav = iFrameLocalStorage[sfHost + "_customFavicon"];
     if (iFrameLocalStorage.useCustomFavicon && fav){
@@ -164,7 +164,6 @@ function initButton(sfHost, inInspector) {
     }
   }
 
->>>>>>> upstream/releaseCandidate
   function loadPopup() {
     // window.addEventListener("message", e => {
     //   if (e.isTrusted === false || e.data?.message !== "updatePopupArrowOrientation") {
