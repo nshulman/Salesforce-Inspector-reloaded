@@ -7,7 +7,6 @@ class Model {
 
   constructor(sfHost) {
     this.sfHost = sfHost;
-
     this.sfLink = "https://" + this.sfHost;
     this.userInfo = "...";
     if (localStorage.getItem(sfHost + "_isSandbox") != "true") {
@@ -56,7 +55,6 @@ class Model {
       })
       .catch(err => console.log("error handling failed", err));
   }
-
 }
 
 class OptionsTabSelector extends React.Component {
@@ -74,7 +72,7 @@ class OptionsTabSelector extends React.Component {
         title: "User Experience",
         content: [
           {option: ArrowButtonOption, props: {key: 1}},
-          {option: Option, props: {type: "toggle", title: "Popup arrow button - allow drag and drop", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen, detect orientation automatically, and save the new position"}},
+          {option: Option, props: {type: "toggle", title: "Popup arrow button drag and drop", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen, detect orientation automatically, and save the new position"}},
           {option: Option, props: {type: "toggle", title: "Flow Scrollability", key: "scrollOnFlowBuilder"}},
           {option: Option, props: {type: "toggle", title: "Inspect page - Show table borders", key: "displayInspectTableBorders"}},
           {option: Option, props: {type: "toggle", title: "Always open links in a new tab", key: "openLinksInNewTab"}},
@@ -184,9 +182,7 @@ class ArrowButtonOption extends React.Component {
     this.onChangeArrowPosition = this.onChangeArrowPosition.bind(this);
     this.state = {
       arrowButtonOrientation: localStorage.getItem("popupArrowOrientation") ? localStorage.getItem("popupArrowOrientation") : "vertical",
-      arrowButtonPosition: localStorage.getItem("popupArrowPosition") ? localStorage.getItem("popupArrowPosition") : "20",
-      vertical: localStorage.getItem("popupArrowOrientation") !== "horizontal",
-      horizontal: localStorage.getItem("popupArrowOrientation") === "horizontal",
+      arrowButtonPosition: localStorage.getItem("popupArrowPosition") ? localStorage.getItem("popupArrowPosition") : "20"
     };
     this.timeout;
   }
@@ -202,10 +198,10 @@ class ArrowButtonOption extends React.Component {
     }, "*");
   }
 
-  onChangeArrowOrientation(e) {
+  onChangeArrowOrientation(o) {
     // let orientation = e.target.value;
-    console.log('e', e.target.dataset.orientation, this.state.vertical);
-    let orientation = this.state.vertical ? "horizontal" : "vertical";
+    console.log('change orient', o);
+    let orientation = o === "h" ? "horizontal" : "vertical";
     this.setState({arrowButtonOrientation: orientation});    
     localStorage.setItem("popupArrowOrientation", orientation);
     this.sendUpdateMessage();
@@ -231,6 +227,8 @@ class ArrowButtonOption extends React.Component {
   
 
   render() {
+    let isHorizontal = this.state.arrowButtonOrientation === "horizontal";
+    let isVertical = this.state.arrowButtonOrientation === "vertical";
     return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_x-small"},
       h("div", {className: "slds-col slds-size_4-of-12 text-align-middle"},
         h("span", {}, "Popup arrow button orientation and position")
@@ -238,17 +236,17 @@ class ArrowButtonOption extends React.Component {
       h("div", {className: "slds-col slds-size_8-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},             
       h("label", {className: "slds-col slds-size_2-of-12 slds-text-align_right"}, "Orientation:"),
         h("span", {title: "Vertical - display popup on right side of screen"},
-          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", viewBox: "0 0 52 52", style: {marginRight: "10px", borderRight: this.state.vertical ? "2px solid #0176d3" : "0"}, onClick: this.onChangeArrowOrientation},
-            h("use", {xlinkHref: "symbols.svg#toggle_panel_right", style: {fill: this.state.vertical ? "#0176d3" : "#9c9c9c"}})
+          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", viewBox: "0 0 52 52", style: {marginRight: "10px", cursor: "pointer", borderRight: isVertical ? "2px solid #0176d3" : "0"}, onClick: () => this.onChangeArrowOrientation("v")},
+            h("use", {xlinkHref: "symbols.svg#toggle_panel_right", style: {fill: isVertical ? "#0176d3" : "#9c9c9c"}})
           )),
         h("span", {title: "Horizontal - display popup at bottom of screen"},
-          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", label: "Horizontal", viewBox: "0 0 52 52", style: {marginRight: "10px", borderBottom: this.state.horizontal ? "2px solid #0176d3" : "0"}, onClick: this.onChangeArrowOrientation},
-              h("use", {xlinkHref: "symbols.svg#toggle_panel_bottom", style: {fill: this.state.horizontal ? "#0176d3" : "#9c9c9c"}})
+          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", label: "Horizontal", viewBox: "0 0 52 52", style: {marginRight: "10px", cursor: "pointer", borderBottom: isHorizontal ? "2px solid #0176d3" : "0"}, onClick: () => this.onChangeArrowOrientation("h")},
+              h("use", {xlinkHref: "symbols.svg#toggle_panel_bottom", style: {fill: isHorizontal ? "#0176d3" : "#9c9c9c"}})
           )),
         h("label", {className: "slds-m-left_medium slds-col slds-size_2-of-12 slds-text-align_right", htmlFor: "arrowPositionSlider"}, "Position (%):"),
         h("div", {className: "slds-form-element__control slider-container slds-col slds-size_4-of-12"},
           h("div", {className: "slds-slider"},
-            h("input", {type: "range", id: "arrowPositionSlider", className: "slds-slider__range", value: this.state.arrowButtonPosition, min: "0", max: "100", step: "1", onChange: this.onChangeArrowPosition}),
+            h("input", {type: "range", id: "arrowPositionSlider", className: "slds-slider__range", value: this.state.arrowButtonPosition || "", min: "0", max: "100", step: "1", onChange: this.onChangeArrowPosition}),
             h("span", {className: "slds-slider__value", "aria-hidden": true}, this.state.arrowButtonPosition)
           )
         )
@@ -279,7 +277,7 @@ class APIVersionOption extends React.Component {
       h("div", {className: "slds-col slds-size_7-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"}),
       h("div", {className: "slds-col slds-size_1-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},
         h("div", {className: "slds-form-element__control slds-col slds-size_2-of-12"},
-          h("input", {type: "number", required: true, id: "apiVersionInput", className: "slds-input", value: this.state.apiVersion.split(".0")[0], onChange: this.onChangeApiVersion}),
+          h("input", {type: "number", required: true, id: "apiVersionInput", className: "slds-input", value: this.state.apiVersion.split(".0")[0] || "", onChange: this.onChangeApiVersion}),
         )
       )
     );
@@ -307,7 +305,7 @@ class RestHeaderOption extends React.Component {
       ),
       h("div", {className: "slds-col slds-size_2-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},
         h("div", {className: "slds-form-element__control slds-col slds-size_6-of-12"},
-          h("input", {type: "text", id: "restHeaderInput", className: "slds-input", placeholder: "Rest Header", value: this.state.restHeader, onChange: this.onChangeRestHeader}),
+          h("input", {type: "text", id: "restHeaderInput", className: "slds-input", placeholder: "Rest Header", value: this.state.restHeader || "", onChange: this.onChangeRestHeader}),
         )
       )
     );
@@ -425,12 +423,12 @@ class Option extends React.Component {
         ),
         h("div", {className: "slds-col slds-size_2-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},
           h("div", {className: "slds-form-element__control slds-col slds-size_6-of-12"},
-            h("input", {type: "text", id: "restHeaderInput", className: "slds-input", placeholder: this.placeholder, value: this.state[this.key], onChange: this.onChange}),
+            h("input", {type: "text", id: "restHeaderInput", className: "slds-input", placeholder: this.placeholder, value: this.state[this.key] || "", onChange: this.onChange}),
           )
         )
       );
     } else {
-      return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_xx-small", position: "relative"},
+      return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_xx-small"},
         h("span", {className: "slds-col slds-size_4-of-12 text-align-middle"},
           h("span", {}, this.title,
           h(Tooltip, {tooltip: this.tooltip, idKey: this.key})),         
@@ -473,7 +471,7 @@ class APIKeyOption extends React.Component {
       ),
       h("div", {className: "slds-col slds-size_2-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},
         h("div", {className: "slds-form-element__control slds-col slds-size_6-of-12"},
-          h("input", {type: "text", id: "apiKeyInput", className: "slds-input", placeholder: "Consumer Key", value: this.state.apiKey, onChange: this.onChangeApiKey}),
+          h("input", {type: "text", id: "apiKeyInput", className: "slds-input", placeholder: "Consumer Key", value: this.state.apiKey || "", onChange: this.onChangeApiKey}),
         )
       )
     );
@@ -501,7 +499,7 @@ class CSVSeparatorOption extends React.Component {
       ),
       h("div", {className: "slds-col slds-size_7-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"}),
       h("div", {className: "slds-col slds-size_1-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},
-        h("input", {type: "text", id: "csvSeparatorInput", className: "slds-input slds-text-align_right slds-m-right_small", placeholder: "CSV Separator", value: this.state.csvSeparator, onChange: this.onChangeCSVSeparator})
+        h("input", {type: "text", id: "csvSeparatorInput", className: "slds-input slds-text-align_right slds-m-right_small", placeholder: "CSV Separator", value: this.state.csvSeparator || "", onChange: this.onChangeCSVSeparator})
       )
     );
   }
@@ -540,7 +538,7 @@ class enableLogsOption extends React.Component {
         ),
         h("div", {className: "slds-col slds-size_6-of-12 slds-form-element"}),
         h("div", {className: "slds-col slds-size_3-of-12 slds-form-element"},
-          h("input", {type: "text", id: "debugLogDebugLevel", className: "slds-input slds-text-align_right slds-m-right_small", placeholder: "SFDC_DevConsole", value: this.state.debugLogDebugLevel, onChange: this.onChangeDebugLevel})
+          h("input", {type: "text", id: "debugLogDebugLevel", className: "slds-input slds-text-align_right slds-m-right_small", placeholder: "SFDC_DevConsole", value: this.state.debugLogDebugLevel || "", onChange: this.onChangeDebugLevel})
         ),
       ),
       h("div", {className: "slds-col slds-grid slds-wrap slds-border_bottom slds-p-horizontal_small slds-p-vertical_xx-small"},
@@ -549,7 +547,7 @@ class enableLogsOption extends React.Component {
         ),
         h("div", {className: "slds-col slds-size_6-of-12 slds-form-element"}),
         h("div", {className: "slds-col slds-size_3-of-12 slds-form-element"},
-          h("input", {type: "number", id: "debugLogTimeMinutes", className: "slds-input slds-text-align_right slds-m-right_small", value: this.state.debugLogTimeMinutes, onChange: this.onChangeDebugLogTime})
+          h("input", {type: "number", id: "debugLogTimeMinutes", className: "slds-input slds-text-align_right slds-m-right_small", value: this.state.debugLogTimeMinutes || "", onChange: this.onChangeDebugLogTime})
         ),
       )
     );
