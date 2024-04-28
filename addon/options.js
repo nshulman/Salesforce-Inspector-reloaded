@@ -74,10 +74,10 @@ class OptionsTabSelector extends React.Component {
         title: "User Experience",
         content: [
           {option: ArrowButtonOption, props: {key: 1}},
-          {option: Option, props: {type: "toggle", title: "Popup arrow button - allow drag and drop", key: "allowPopupDrag"}},
-          {option: Option, props: {type: "toggle", title: "Flow Scrollability", key: "scrollOnFlowBuilder"}},
-          {option: Option, props: {type: "toggle", title: "Inspect page - Show table borders", key: "displayInspectTableBorders"}},
-          {option: Option, props: {type: "toggle", title: "Always open links in a new tab", key: "openLinksInNewTab"}},
+          {option: Option, props: {type: "toggle", title: "Popup arrow button - allow drag and drop", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen"}},
+          {option: Option, props: {type: "toggle", title: "Flow Scrollability", key: "scrollOnFlowBuilder", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen Allow drag and drop of the popup arrow button to a different location on the screen Allow drag and drop of the popup arrow button to a different location on the screen"}},
+          {option: Option, props: {type: "toggle", title: "Inspect page - Show table borders", key: "displayInspectTableBorders", tooltip: "short!"}},
+          {option: Option, props: {type: "toggle", title: "Always open links in a new tab", key: "openLinksInNewTab", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen"}},
           {option: Option, props: {type: "toggle", title: "Open Permission Set / Permission Set Group summary from shortcuts", key: "enablePermSetSummary"}},
           {option: Option, props: {type: "toggle", title: "Search metadata from Shortcut tab", key: "metadataShortcutSearch"}},
           {option: Option, props: {type: "toggle", title: "Disable query input autofocus", key: "disableQueryInputAutoFocus"}},
@@ -313,6 +313,93 @@ class RestHeaderOption extends React.Component {
     );
   }
 }
+
+class Tooltip extends React.Component {
+  constructor(props) {
+    super(props);
+    this.tooltip = props.tooltip;
+    this.tipKey = props.idKey + "_tooltip";
+    this.iconKey = props.idKey + "_icon";
+    this.onClick = this.onShow.bind(this);
+    this.onHover = this.onHover.bind(this);
+    this.onHide = this.onHide.bind(this);
+    this.showTimer = null;
+    this.state = {
+      isTooltipVisible: false,
+      position: {x:"0", y:"0"}
+    }
+  }
+
+  getTooltipPosition() {
+    const toolTip = document.querySelectorAll(`[id='${this.tipKey}']`)[0];
+    const elRect = document.querySelectorAll(`[id='${this.iconKey}']`)[0].getBoundingClientRect();    
+    toolTip.style.display = "block"; // force visibility so position can be calculated
+    const toolTipRect = toolTip.getBoundingClientRect();
+    const x = `${elRect.left - 30}px`; // nubbin offset
+    const y = `${elRect.top - toolTipRect.height - 74}px`; // fixed offset
+    return {x, y};
+  }
+
+  onHover() {    
+    this.showTimer = setTimeout(() => {
+      this.onShow();
+    }, 500);
+  }
+
+  onShow() {
+    console.log('show', this.key);    
+    const position = this.getTooltipPosition();
+    console.log('position', position );
+    this.setState({isTooltipVisible: true, position});
+  }
+
+  onHide() {
+    console.log('hide');
+    clearTimeout(this.showTimer);
+    this.setState({isTooltipVisible: false});
+    //this.setState({isTooltipVisible: false});
+  }
+
+
+  render() {
+    if (!this.tooltip) {
+      return null;
+    }
+
+    
+// h("div", {style: {paddingLeft: "2rem", paddingTop: "5rem", position: "relative"}},
+    return h("span", {style: {marginLeft: "5px"}},
+              h("a", {href: "#", onClick: this.onShow, onMouseEnter: this.onHover, onMouseLeave: this.onHide, id: this.iconKey},
+                h("span", {className: "slds-icon_container slds-icon-utility-info"},
+                  h("svg", {className: "slds-icon_xx-small slds-icon-text-default", viewBox: "0 0 40 40", style: {verticalAlign: "unset"}},
+                    h("use", {xlinkHref: "symbols.svg#info", fill: "#9c9c9c"}),
+                  )),
+                h("span", {className: "slds-assistive-text"}, "Learn more")
+              ),
+              h("div", {className: "slds-popover slds-popover_tooltip slds-nubbin_bottom-left", role: "tooltip", id: this.tipKey, 
+                style: {position: "absolute", left: this.state.position.x, top: this.state.position.y, display: this.state.isTooltipVisible ? "block" : "none"}},
+                h("div", {className: "slds-popover__body"}, this.props.tooltip)
+              )
+            );
+            // 32px top, 249px left calc from element
+
+            return h("section", {className: "slds-popover slds-nubbin_left-top", role: "dialog"},
+      h("div", {className: "slds-popover__body"}, this.tooltip)
+    );
+
+
+    
+    
+    return h("span", {className: "slds-p-left_xx-small", position: "relative", zIndex: "999"},
+              h("svg", {className: "slds-button slds-icon_x-small slds-icon-text-default", viewBox: "0 0 25 25"},
+                h("use", {xlinkHref: "symbols.svg#info", fill: "#9c9c9c"}),
+              ));
+    }
+
+    
+    
+}
+
 class Option extends React.Component {
   constructor(props) {
     super(props);
@@ -321,6 +408,7 @@ class Option extends React.Component {
     this.key = props.storageKey;
     this.type = props.type;
     this.label = props.label;
+    this.tooltip = props.tooltip;
     this.placeholder = props.placeholder;
     let value = localStorage.getItem(this.key);
     if (props.default !== undefined && value === null) {
@@ -348,7 +436,8 @@ class Option extends React.Component {
     if (this.type == "text"){
       return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_xx-small"},
         h("div", {className: "slds-col slds-size_4-of-12 text-align-middle"},
-          h("span", {}, this.title)
+          h("span", {}, this.title),
+          h(Tooltip, {tooltip: this.tooltip, idKey: this.key})
         ),
         h("div", {className: "slds-col slds-size_2-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},
           h("div", {className: "slds-form-element__control slds-col slds-size_6-of-12"},
@@ -357,9 +446,10 @@ class Option extends React.Component {
         )
       );
     } else {
-      return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_xx-small"},
-        h("div", {className: "slds-col slds-size_4-of-12 text-align-middle"},
-          h("span", {}, this.title)
+      return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_xx-small", position: "relative"},
+        h("span", {className: "slds-col slds-size_4-of-12 text-align-middle"},
+          h("span", {}, this.title,
+          h(Tooltip, {tooltip: this.tooltip, idKey: this.key})),         
         ),
         h("div", {className: "slds-col slds-size_7-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"}),
         h("div", {dir: "rtl", className: "slds-form-element__control slds-col slds-size_1-of-12 slds-p-right_medium"},
@@ -511,7 +601,6 @@ class App extends React.Component {
 }
 
 {
-
   let args = new URLSearchParams(location.search.slice(1));
   let sfHost = args.get("host");
   initButton(sfHost, true);
@@ -527,7 +616,5 @@ class App extends React.Component {
     if (parent && parent.isUnitTest) { // for unit tests
       parent.insextTestLoaded({model});
     }
-
   });
-
 }

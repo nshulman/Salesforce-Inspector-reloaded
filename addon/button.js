@@ -120,7 +120,6 @@ function initButton(sfHost, inInspector) {
     }    
   }
 
-<<<<<<< HEAD
   // Tilt to show that it's moveable
   function tilt(el, degrees) {
     el.style.transform = `rotate(${degrees}deg)`;
@@ -173,7 +172,7 @@ function initButton(sfHost, inInspector) {
     //   console.log("message", e.data, e.isTrusted, pos, orientation);
     // });
 
-    btn.addEventListener("mousedown", (e) => {
+    btn.addEventListener("mouseenter", (e) => {
       if (localStorage.getItem("allowPopupDrag") == "false") {
         return;
       }
@@ -188,7 +187,7 @@ function initButton(sfHost, inInspector) {
     });
 
     // track in window to prevent button from getting stuck
-    window.addEventListener("mouseup", (e) => {
+    window.addEventListener("mouseleave", (e) => {
       if (localStorage.getItem("allowPopupDrag") === "false" || !moveButton) {
         return;
       }
