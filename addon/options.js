@@ -72,7 +72,7 @@ class OptionsTabSelector extends React.Component {
         title: "User Experience",
         content: [
           {option: ArrowButtonOption, props: {key: 1}},
-          {option: Option, props: {type: "toggle", title: "Popup arrow button drag and drop", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen, detect orientation automatically, and save the new position"}},
+          {option: Option, props: {type: "toggle", title: "Enable popup arrow button drag and drop", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen, detect orientation automatically, and save the new position"}},
           {option: Option, props: {type: "toggle", title: "Flow Scrollability", key: "scrollOnFlowBuilder"}},
           {option: Option, props: {type: "toggle", title: "Inspect page - Show table borders", key: "displayInspectTableBorders"}},
           {option: Option, props: {type: "toggle", title: "Always open links in a new tab", key: "openLinksInNewTab"}},
@@ -211,6 +211,7 @@ class ArrowButtonOption extends React.Component {
 
   }
 
+  
   onChangeArrowPosition(e) {
     let position = e.target.value;
     this.setState({arrowButtonPosition: position});
@@ -222,7 +223,7 @@ class ArrowButtonOption extends React.Component {
       console.log("[SFInspector] Setting Arrow Position: ", position);
       localStorage.setItem("popupArrowPosition", position);
       this.sendUpdateMessage();
-    }, 1000);
+    }, 100);
   }
   
 
