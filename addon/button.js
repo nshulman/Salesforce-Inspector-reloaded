@@ -120,6 +120,7 @@ function initButton(sfHost, inInspector) {
     }    
   }
 
+<<<<<<< HEAD
   // Tilt to show that it's moveable
   function tilt(el, degrees) {
     el.style.transform = `rotate(${degrees}deg)`;
@@ -148,6 +149,22 @@ function initButton(sfHost, inInspector) {
   let offset = 0;
   let sliderTimeout = null;
   let posTimeout = null;
+=======
+  function setFavicon(sfHost){
+    let fav = iFrameLocalStorage[sfHost + "_customFavicon"];
+    if (iFrameLocalStorage.useCustomFavicon && fav){
+      let link = document.createElement("link");
+      link.setAttribute("rel", "icon");
+      link.orgType = "image/x-icon";
+      if (fav.indexOf("http") == -1){
+        fav = chrome.runtime.getURL("images/favicons/" + fav + ".png");
+      }
+      link.href = fav;
+      document.head.appendChild(link);
+    }
+  }
+
+>>>>>>> upstream/releaseCandidate
   function loadPopup() {
     // window.addEventListener("message", e => {
     //   if (e.isTrusted === false || e.data?.message !== "updatePopupArrowOrientation") {
@@ -254,6 +271,7 @@ function initButton(sfHost, inInspector) {
         }
         setRootCSSProperties(rootEl, btn);
         addFlowScrollability(popupEl);
+        setFavicon(sfHost);
         popupEl.contentWindow.postMessage({
           insextInitResponse: true,
           sfHost,
@@ -345,5 +363,4 @@ function initButton(sfHost, inInspector) {
       }
     }
   }
-
 }
