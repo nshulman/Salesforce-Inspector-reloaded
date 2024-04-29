@@ -193,7 +193,7 @@ class ArrowButtonOption extends React.Component {
         this.setState({
           arrowButtonOrientation: localStorage.getItem("popupArrowOrientation") ? localStorage.getItem("popupArrowOrientation") : "vertical",
           arrowButtonPosition: localStorage.getItem("popupArrowPosition") ? localStorage.getItem("popupArrowPosition") : "20"
-        });      
+        });
       }
     });
   }
@@ -213,25 +213,25 @@ class ArrowButtonOption extends React.Component {
     // let orientation = e.target.value;
     console.log('change orient', o);
     let orientation = o === "h" ? "horizontal" : "vertical";
-    this.setState({arrowButtonOrientation: orientation});    
+    this.setState({arrowButtonOrientation: orientation});
     localStorage.setItem("popupArrowOrientation", orientation);
     this.sendUpdateMessage();
     // parent????
-    //window.postMessage({message: "updatePopupArrowOrientation", pos: this.state.arrowButtonPosition, orientation});    
+    //window.postMessage({message: "updatePopupArrowOrientation", pos: this.state.arrowButtonPosition, orientation});
     // window.location.reload();
   }
 
   onChangeArrowPosition(e) {
     let position = e.target.value;
-    this.setState({arrowButtonPosition: position});    
-    clearTimeout(this.timeout);    
+    this.setState({arrowButtonPosition: position});
+    clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       // console.log("[SFInspector] Setting Arrow Position: ", position);
       localStorage.setItem("popupArrowPosition", position);
       this.sendUpdateMessage();
     }, 100);
   }
-  
+
   get isHorizontal() {
     return this.state.arrowButtonOrientation === "horizontal";
   }
@@ -240,20 +240,20 @@ class ArrowButtonOption extends React.Component {
     return this.state.arrowButtonOrientation === "vertical";
   }
 
-  render() {    
+  render() {
     return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_x-small"},
       h("div", {className: "slds-col slds-size_4-of-12 text-align-middle"},
         h("span", {}, "Popup arrow button orientation and position")
       ),
-      h("div", {className: "slds-col slds-size_8-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},             
-      h("label", {className: "slds-col slds-size_2-of-12 slds-text-align_right"}, "Orientation:"),
+      h("div", {className: "slds-col slds-size_8-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},
+        h("label", {className: "slds-col slds-size_2-of-12 slds-text-align_right"}, "Orientation:"),
         h("span", {title: "Vertical - display popup on right side of screen"},
           h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", viewBox: "0 0 52 52", style: {marginRight: "10px", cursor: "pointer", borderRight: this.isVertical ? "2px solid #0176d3" : "0"}, onClick: () => this.onChangeArrowOrientation("v")},
             h("use", {xlinkHref: "symbols.svg#toggle_panel_right", style: {fill: this.isVertical ? "#0176d3" : "#9c9c9c"}})
           )),
         h("span", {title: "Horizontal - display popup at bottom of screen"},
           h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", label: "Horizontal", viewBox: "0 0 52 52", style: {marginRight: "10px", cursor: "pointer", borderBottom: this.isHorizontal ? "2px solid #0176d3" : "0"}, onClick: () => this.onChangeArrowOrientation("h")},
-              h("use", {xlinkHref: "symbols.svg#toggle_panel_bottom", style: {fill: this.isHorizontal ? "#0176d3" : "#9c9c9c"}})
+            h("use", {xlinkHref: "symbols.svg#toggle_panel_bottom", style: {fill: this.isHorizontal ? "#0176d3" : "#9c9c9c"}})
           )),
         h("label", {className: "slds-m-left_medium slds-col slds-size_2-of-12 slds-text-align_right", htmlFor: "arrowPositionSlider"}, "Position (%):"),
         h("div", {className: "slds-form-element__control slider-container slds-col slds-size_4-of-12"},
@@ -336,18 +336,18 @@ class Tooltip extends React.Component {
     this.showTimer = null;
     this.state = {
       isTooltipVisible: false,
-      position: {x:"0", y:"0"},
+      position: {x: "0", y: "0"},
       opacity: 0
-    }
+    };
   }
 
   setTooltipPosition() {
     const toolTip = document.querySelectorAll(`[id='${this.tipKey}']`)[0];
-    const elRect = document.querySelectorAll(`[id='${this.iconKey}']`)[0].getBoundingClientRect();        
+    const elRect = document.querySelectorAll(`[id='${this.iconKey}']`)[0].getBoundingClientRect();
     const toolTipRect = toolTip.getBoundingClientRect();
     const x = `${elRect.left - 27}px`; // nubbin offset
     const y = `${elRect.top - toolTipRect.height - 74}px`; // fixed offset
-    this.setState({position: {x, y}, opacity: 1});    
+    this.setState({position: {x, y}, opacity: 1});
   }
 
   onClick(e) {
@@ -357,15 +357,15 @@ class Tooltip extends React.Component {
     this.show();
   }
 
-  onHover() {    
+  onHover() {
     this.showTimer = setTimeout(() => {
       this.show();
     }, 400);
   }
 
-  show() {    
+  show() {
     this.setState({isTooltipVisible: true});
-    this.setTooltipPosition();    
+    this.setTooltipPosition();
   }
 
   onHide() {
@@ -379,18 +379,16 @@ class Tooltip extends React.Component {
     }
 
     return h("span", {style: {marginLeft: "2px"}},
-              h("a", {href: "#", onClick: this.onClick, onMouseEnter: this.onHover, onMouseLeave: this.onHide, id: this.iconKey},
-                h("span", {className: "slds-icon_container slds-icon-utility-info"},
-                  h("svg", {className: "slds-icon_xx-small slds-icon-text-default", viewBox: "0 0 40 40", style: {verticalAlign: "unset", margin: "3px"}},
-                    h("use", {xlinkHref: "symbols.svg#info", fill: "#9c9c9c"}),
-                  )),
-                h("span", {className: "slds-assistive-text"}, "Learn more")
-              ),
-              h("div", {className: "slds-popover slds-popover_tooltip slds-nubbin_bottom-left", role: "tooltip", id: this.tipKey, 
-                style: {position: "absolute", left: this.state.position.x, top: this.state.position.y, opacity: this.state.opacity, display: this.state.isTooltipVisible ? "block" : "none"}},
-                h("div", {className: "slds-popover__body"}, this.props.tooltip)
-              )
-            );
+      h("a", {href: "#", onClick: this.onClick, onMouseEnter: this.onHover, onMouseLeave: this.onHide, id: this.iconKey},
+        h("span", {className: "slds-icon_container slds-icon-utility-info"},
+          h("svg", {className: "slds-icon_xx-small slds-icon-text-default", viewBox: "0 0 40 40", style: {verticalAlign: "unset", margin: "3px"}},
+            h("use", {xlinkHref: "symbols.svg#info", fill: "#9c9c9c"}),
+          )),
+        h("span", {className: "slds-assistive-text"}, "Learn more")
+      ),
+      h("div", {className: "slds-popover slds-popover_tooltip slds-nubbin_bottom-left", role: "tooltip", id: this.tipKey, style: {position: "absolute", left: this.state.position.x, top: this.state.position.y, opacity: this.state.opacity, display: this.state.isTooltipVisible ? "block" : "none"}},
+        h("div", {className: "slds-popover__body"}, this.props.tooltip)
+      ));
   }
 }
 
@@ -443,7 +441,7 @@ class Option extends React.Component {
       return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_xx-small"},
         h("span", {className: "slds-col slds-size_4-of-12 text-align-middle"},
           h("span", {}, this.title,
-          h(Tooltip, {tooltip: this.tooltip, idKey: this.key})),         
+            h(Tooltip, {tooltip: this.tooltip, idKey: this.key})),
         ),
         h("div", {className: "slds-col slds-size_7-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"}),
         h("div", {dir: "rtl", className: "slds-form-element__control slds-col slds-size_1-of-12 slds-p-right_medium"},
