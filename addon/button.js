@@ -200,27 +200,35 @@ function initButton(sfHost, inInspector) {
         const rect = rootEl.getBoundingClientRect();
         offset = rect.top - e.clientY;        
         tilt(btn, -5);
-      }, 600);
+      }, 200);
     });
 
     // track in window to prevent button from getting stuck
     window.addEventListener("mouseup", (e) => {      
       if (!canDrag() || !isDragging) {
         const popAction =  rootEl.classList.contains("insext-active") ? closePopup : openPopup;
-        //console.log('action', action, rootEl.classList.contains("insext-active"));
         popAction();
       }
       e.preventDefault();
       clearTimeout(sliderTimeout);
       
+      // TODO: Where is the switch to vertical?
       console.log("xy", e.clientX, e.clientY);
       console.log("w", window.innerWidth, window.innerHeight);
       // console.log("o", calcOrientation(e));
       // add delay to prevent click event from firing, otherwise it's a click
-      setTimeout(() => {
+      sliderTimeout = setTimeout(() => {
         isDragging = false;
         tilt(btn, 0);
-      }, 200);
+        parent.postMessage({
+          insextInitRequest: true,
+          iFrameLocalStorage: {
+            popupArrowOrientation: localStorage.getItem("popupArrowOrientation"),
+            popupArrowPosition: JSON.parse(localStorage.getItem("popupArrowPosition")),
+            scrollOnFlowBuilder: JSON.parse(localStorage.getItem("scrollOnFlowBuilder"))
+          }
+        }, "*");
+      }, 100);
     });
 
     // track movement to recalculate button position
@@ -235,8 +243,7 @@ function initButton(sfHost, inInspector) {
       // move in realtime and debounce storing of the position
       rootEl.style.top = (e.clientY + offset) + "px";
       clearTimeout(posTimeout);
-      posTimeout = setTimeout(() => {
-        
+      posTimeout = setTimeout(() => {        
         // calc location as percent between 0 and 95
         let buttonY = Math.round((e.clientY + offset) / window.innerHeight * 100);
         let buttonX = Math.round((e.clientX) / window.innerWidth * 100);
@@ -246,8 +253,8 @@ function initButton(sfHost, inInspector) {
           updateLocalStorage: true,
           key: "popupArrowPosition",
           value: JSON.stringify(buttonPos)
-        }, "*");
-      }, 300);
+        }, "*");        
+      }, 50);
     });
 
     btn.addEventListener("click", (e) => {
