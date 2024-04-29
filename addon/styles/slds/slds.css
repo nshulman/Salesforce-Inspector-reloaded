@@ -5287,7 +5287,8 @@ a.slds-button--inverse:focus{
   margin-right:0.75rem;
 }
 
-/* Popover - nubbin - tooltip support */
+/* Tooltip support (Popover + Nubbins) */
+/*! Lightning Design System 2.21.5 */
 .slds-popover {
   position: relative;
   border-radius: 0.25rem;

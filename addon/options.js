@@ -72,7 +72,7 @@ class OptionsTabSelector extends React.Component {
         title: "User Experience",
         content: [
           {option: ArrowButtonOption, props: {key: 1}},
-          {option: Option, props: {type: "toggle", title: "Enable popup arrow button drag and drop", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen, detect orientation automatically, and save the new position"}},
+          {option: Option, props: {type: "toggle", title: "Enable popup arrow button drag", key: "allowPopupDrag", tooltip: "Allow drag and drop of the popup arrow button to a different location on the screen after a brief hold, detect orientation automatically, and save the new position"}},
           {option: Option, props: {type: "toggle", title: "Flow Scrollability", key: "scrollOnFlowBuilder"}},
           {option: Option, props: {type: "toggle", title: "Inspect page - Show table borders", key: "displayInspectTableBorders"}},
           {option: Option, props: {type: "toggle", title: "Always open links in a new tab", key: "openLinksInNewTab"}},
@@ -208,28 +208,28 @@ class ArrowButtonOption extends React.Component {
     // parent????
     //window.postMessage({message: "updatePopupArrowOrientation", pos: this.state.arrowButtonPosition, orientation});    
     // window.location.reload();
-
   }
 
-  
   onChangeArrowPosition(e) {
     let position = e.target.value;
-    this.setState({arrowButtonPosition: position});
-    console.log("[SFInspector] New Arrow Position Value: ", position);
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-    }
+    this.setState({arrowButtonPosition: position});    
+    clearTimeout(this.timeout);    
     this.timeout = setTimeout(() => {
-      console.log("[SFInspector] Setting Arrow Position: ", position);
+      // console.log("[SFInspector] Setting Arrow Position: ", position);
       localStorage.setItem("popupArrowPosition", position);
       this.sendUpdateMessage();
     }, 100);
   }
   
+  get isHorizontal() {
+    return this.state.arrowButtonOrientation === "horizontal";
+  }
 
-  render() {
-    let isHorizontal = this.state.arrowButtonOrientation === "horizontal";
-    let isVertical = this.state.arrowButtonOrientation === "vertical";
+  get isVertical() {
+    return this.state.arrowButtonOrientation === "vertical";
+  }
+
+  render() {    
     return h("div", {className: "slds-grid slds-border_bottom slds-p-horizontal_small slds-p-vertical_x-small"},
       h("div", {className: "slds-col slds-size_4-of-12 text-align-middle"},
         h("span", {}, "Popup arrow button orientation and position")
@@ -237,12 +237,12 @@ class ArrowButtonOption extends React.Component {
       h("div", {className: "slds-col slds-size_8-of-12 slds-form-element slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_small"},             
       h("label", {className: "slds-col slds-size_2-of-12 slds-text-align_right"}, "Orientation:"),
         h("span", {title: "Vertical - display popup on right side of screen"},
-          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", viewBox: "0 0 52 52", style: {marginRight: "10px", cursor: "pointer", borderRight: isVertical ? "2px solid #0176d3" : "0"}, onClick: () => this.onChangeArrowOrientation("v")},
-            h("use", {xlinkHref: "symbols.svg#toggle_panel_right", style: {fill: isVertical ? "#0176d3" : "#9c9c9c"}})
+          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", viewBox: "0 0 52 52", style: {marginRight: "10px", cursor: "pointer", borderRight: this.isVertical ? "2px solid #0176d3" : "0"}, onClick: () => this.onChangeArrowOrientation("v")},
+            h("use", {xlinkHref: "symbols.svg#toggle_panel_right", style: {fill: this.isVertical ? "#0176d3" : "#9c9c9c"}})
           )),
         h("span", {title: "Horizontal - display popup at bottom of screen"},
-          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", label: "Horizontal", viewBox: "0 0 52 52", style: {marginRight: "10px", cursor: "pointer", borderBottom: isHorizontal ? "2px solid #0176d3" : "0"}, onClick: () => this.onChangeArrowOrientation("h")},
-              h("use", {xlinkHref: "symbols.svg#toggle_panel_bottom", style: {fill: isHorizontal ? "#0176d3" : "#9c9c9c"}})
+          h("svg", {className: "slds-button slds-icon_small slds-icon-text-default", label: "Horizontal", viewBox: "0 0 52 52", style: {marginRight: "10px", cursor: "pointer", borderBottom: this.isHorizontal ? "2px solid #0176d3" : "0"}, onClick: () => this.onChangeArrowOrientation("h")},
+              h("use", {xlinkHref: "symbols.svg#toggle_panel_bottom", style: {fill: this.isHorizontal ? "#0176d3" : "#9c9c9c"}})
           )),
         h("label", {className: "slds-m-left_medium slds-col slds-size_2-of-12 slds-text-align_right", htmlFor: "arrowPositionSlider"}, "Position (%):"),
         h("div", {className: "slds-form-element__control slider-container slds-col slds-size_4-of-12"},
