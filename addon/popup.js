@@ -12,7 +12,7 @@ let h = React.createElement;
   }, "*");
   addEventListener("message", function initResponseHandler(e) {
     if (e.source == parent) {
-      if (e.data.insextInitResponse) {        
+      if (e.data.insextInitResponse) {
         init(e.data);
         initLinks(e.data);
       } else if (e.data.updateLocalStorage) {
@@ -1416,7 +1416,7 @@ class UserDetails extends React.PureComponent {
   }
 
   render() {
-    let {user, linkTarget, sfHost} = this.props;
+    let {user, linkTarget} = this.props;
     return (
       h("div", {className: "all-data-box-inner"},
         h("div", {className: "all-data-box-data slds-m-bottom_xx-small"},
