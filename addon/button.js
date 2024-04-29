@@ -133,7 +133,7 @@ function initButton(sfHost, inInspector) {
   function switchOrientation() {
     iFrameLocalStorage.popupArrowOrientation = iFrameLocalStorage.popupArrowOrientation == "horizontal" ? "vertical" : "horizontal";
     setRootCSSProperties(rootEl, btn);
-  };
+  }
 
   // Switch H/V orientation based on mouse positionD
   function calcOrientation(e) {
