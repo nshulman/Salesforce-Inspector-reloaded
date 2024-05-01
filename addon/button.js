@@ -79,45 +79,89 @@ function initButton(sfHost, inInspector) {
     }
   }
 
+  function setPopupStyles(el, stylesToAdd) {
+    const styleMap = new Map(stylesToAdd);
+    const styleTypes = ["top", "right", "bottom"];
+    for (let s of styleTypes) {
+      // Set the style to the value in the map or explicitly make it empty
+      el.style[s] = styleMap.has(s) ? styleMap.get(s) : "";
+    }
+  }
+
+  function setPopupClasses(el, classesToAdd) {
+    const allClasses = ["horizontal", "horizontal-left", "horizontal-centered", "horizontal-right", "vertical", "vertical-up"];
+    return setClasses(el, classesToAdd, allClasses, "popup");
+  }
+
+  function setButtonClasses(el, classesToAdd) {
+    const allClasses = ["vertical", "horizontal"];
+    return setClasses(el, classesToAdd, allClasses, "btn");
+  }
+
+  function setClasses(el, classesToAdd, allClasses, prefix) {
+    // Helper to clean up popup classes and add new ones
+    for (let c of allClasses) {
+      if (classesToAdd?.includes(c)) {
+        el.classList.add(`insext-${prefix}-${c}`);
+      } else if (el.classList.contains(`insext-popup-${c}`)) {
+        el.classList.remove(`insext-${prefix}-${c}`);
+      }
+    }
+  }
+
+  function getOrientation(value) {
+    return value ? value : "vertical";
+  }
+
+  function getPosition(isVertical, value) {
+    // Enforce safe boundaries for the popup arrow position
+    // Horizontal is 0% left to 100% right, vertical is 0% top to 100% bottom, default 20%
+    if (!(value > 3 && value < 97)) {
+      value = 20;
+    }
+    return (isVertical ? value : 100 - value) + '%';
+  }
+
   function setRootCSSProperties(rootElement, buttonElement) {
     // detect if the button is already drawn so we can update orientation properly
     let rerender = false;
-    let img = buttonElement.querySelector("img");
+    let img = buttonElement.querySelector("img[id='insext-btn-img-popup']");
     if (img?.src) {
+      console.log('rerender', img.id);
       rerender = true;
     } else {
       img = document.createElement("img");
+      img.id = "insext-btn-img-popup";
       buttonElement.appendChild(img);
     }
 
-    let popupArrowOrientation = iFrameLocalStorage.popupArrowOrientation ? iFrameLocalStorage.popupArrowOrientation : "vertical";
+    // Determine popup orientation (horizontal/vertical) and position (as % of screen)
+    let popupArrowOrientation = getOrientation(iFrameLocalStorage.popupArrowOrientation);
     let isVertical = popupArrowOrientation == "vertical";
-    let popupArrowPosition;
-    if (!iFrameLocalStorage.popupArrowPosition) {
-      popupArrowPosition = "122px";
-    } else {
-      popupArrowPosition = (isVertical ? iFrameLocalStorage.popupArrowPosition : 100 - iFrameLocalStorage.popupArrowPosition) + "%";
-    }
+    const  popupArrowPosition = getPosition(isVertical, iFrameLocalStorage.popupArrowPosition);
 
     if (isVertical) {
-      rootElement.style.right = 0;
-      rootElement.style.top = popupArrowPosition;
       img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAPCAYAAADd/14OAAAA40lEQVQoz2P4//8/AzpWzGj6L59U/V8urgxMg/g4FUn6J/+X9E38LxWc8V8htR67IpCkuGfMfxCQjSpENRFFkXvk/1+/foGxQloDSD0DVkVfvnyBY7hCdEVv3rxBwXCFIIdKh2WDFT1+/BgDo1qd2fL/1q1bWDFcoW5xz3/Xppn/oycu/X/x4kUMDFeoWdD136R8wn+f9rlgxSdOnEDBKFajK96/fz8coyjEpnj79u1gjKEQXXFE/+L/Gzdu/G9WMfG/am4HZlzDFAf3LPwfOWEJWBPIwwzYUg9MsXXNFDAN4gMAmASShdkS4AcAAAAASUVORK5CYII=";
-      buttonElement.classList.add("insext-btn-vertical");
-      if (rerender) {
-        buttonElement.classList.remove("insext-btn-horizontal");
-        rootElement.style.removeProperty("bottom");
-      }
-      console.log('vert', rootElement);
+      //rootElement.style.right = 0;
+      //rootElement.style.top = popupArrowPosition;
+      setPopupStyles(rootElement, [["top", popupArrowPosition], ["right", 0]]);
+      setButtonClasses(buttonElement, ["vertical"]);
+      // buttonElement.classList.add("insext-btn-vertical");
+      // if (rerender) {
+      //   buttonElement.classList.remove("insext-btn-horizontal");
+      //   rootElement.style.removeProperty("bottom");
+      // }
     } else {
-      rootElement.style.bottom = 0;
-      rootElement.style.right = popupArrowPosition;
       img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAKCAYAAABrGwT5AAAAAXNSR0IArs4c6QAAAFBlWElmTU0AKgAAAAgAAgESAAMAAAABAAEAAIdpAAQAAAABAAAAJgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAD6ADAAQAAAABAAAACgAAAADdC3pnAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgoZXuEHAAABKElEQVQoFWNgwAI0C7r+6xb3/AdJKaTW/1fMaAKz0ZUyoguANHKzszEIcnMy3Hn+muHX2+cMLDwCDExs7Az3Z9ShqGdC1gzTKCHAyyDGz8OwszCM4c/Hdwy/P75l+PfrJwO6C+CakTXyc3EwlDnogM09M6eL4e+Xj1gNAGtG15hrrozsIIarSydjNYARXWOKnhQDJycnBubg4GBQDk5lYObhZ2DlFwaHARMocORFBRl4ONgYYtSEUGxE5zzevJDh77cvwEB8AQ4DJnZWFgY2FmaGSCU+dLVY+S+2LWZg+PeP4f+f3wwsP3//Yfj8/SdD6/G3DK/evceqAVkQFHiMwGhjZGFlYPn68xfDwzfvGX78+sPwYFYDSjwia4KxQdHF/JePgZGZmQEASqV1t0W3n+oAAAAASUVORK5CYII=";
-      buttonElement.classList.add("insext-btn-horizontal");
-      if (rerender) {
-        buttonElement.classList.remove("insext-btn-vertical");
-        rootElement.style.removeProperty("top");
-      }
+      setPopupStyles(rootElement, [["bottom", 0], ["right", popupArrowPosition]]);
+      setButtonClasses(buttonElement, ["horizontal"]);
+      // rootElement.style.bottom = 0;
+      // rootElement.style.right = popupArrowPosition;
+      // buttonElement.classList.add("insext-btn-horizontal");
+      // if (rerender) {
+      //   buttonElement.classList.remove("insext-btn-vertical");
+      //   rootElement.style.removeProperty("top");
+      // }
     }
     console.log('switch', rootElement.style.cssText, rerender, buttonElement.style.cssText, buttonElement.classList);
   }
@@ -166,18 +210,6 @@ function initButton(sfHost, inInspector) {
     }
   }
 
-  function setPopupClasses(el, classesToAdd) {
-    // Helper to clean up popup classes and add new ones
-    const classTypes = ["horizontal", "horizontal-left", "horizontal-centered", "horizontal-right", "vertical", "vertical-up"];
-    for (let c of classTypes) {
-      if (classesToAdd && classesToAdd.includes(c)) {
-        el.classList.add(`insext-popup-${c}`);
-      } else if (el.classList.contains(`insext-popup-${c}`)) {
-        el.classList.remove(`insext-popup-${c}`);
-      }
-    }
-  }
-
   function canDrag() {
     return localStorage.getItem("allowPopupDrag") === "true";
   }
@@ -188,6 +220,7 @@ function initButton(sfHost, inInspector) {
       if (!canDrag()) {
         return;
       }
+
       // allow button drag after brief hold
       sliderTimeout = setTimeout(() => {
         isDragging = true;
@@ -200,9 +233,9 @@ function initButton(sfHost, inInspector) {
     // track in window to prevent button from getting stuck
     window.addEventListener("mouseup", (e) => {
       if (!canDrag() || !isDragging) {
-        const popAction = rootEl.classList.contains("insext-active") ? closePopup : openPopup;
-        popAction();
+        return;
       }
+      isDragging = false;
       e.preventDefault();
       clearTimeout(sliderTimeout);
 
@@ -227,11 +260,15 @@ function initButton(sfHost, inInspector) {
 
     // track movement to recalculate button position
     window.addEventListener("mousemove", (e) => {
-      if (localStorage.getItem("allowPopupDrag") === "false") {
+      if (!canDrag() || e.buttons !== 1) {
+        tilt(btn, 0);
+        clearTimeout(sliderTimeout);
         return;
       }
       e.preventDefault();
       if (!isDragging) {
+        tilt(btn, 0);
+        clearTimeout(sliderTimeout);
         return;
       }
       // move in realtime and debounce storing of the position
@@ -252,15 +289,13 @@ function initButton(sfHost, inInspector) {
     });
 
     btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      // if (isDragging) {
-      //   return;
-      // }
-      // if (!rootEl.classList.contains("insext-active")) {
-      //   openPopup();
-      // } else {
-      //   closePopup();
-      // }
+      if (isDragging) {
+        return;
+      }
+      const popAction = rootEl.classList.contains("insext-active") ? closePopup : openPopup;
+      popAction();
+      isDragging = false;
+      tilt(btn, 0);
     });
 
     let popupSrc = chrome.runtime.getURL("popup.html");
