@@ -84,6 +84,7 @@ function initButton(sfHost, inInspector) {
     let rerender = false;
     let img = buttonElement.querySelector("img");
     if (img?.src) {
+      console.log('will rerender');
       rerender = true;
     } else {
       img = document.createElement("img");
@@ -91,10 +92,10 @@ function initButton(sfHost, inInspector) {
     }
 
     let popupArrowOrientation = iFrameLocalStorage.popupArrowOrientation ? iFrameLocalStorage.popupArrowOrientation : "vertical";
-    let isVertical = popupArrowOrientation == "vertical";
+    let isVertical = popupArrowOrientation === "vertical";
     let popupArrowPosition;
     if (!iFrameLocalStorage.popupArrowPosition) {
-      popupArrowPosition = "122px";
+      popupArrowPosition = "10%";
     } else {
       popupArrowPosition = (isVertical ? iFrameLocalStorage.popupArrowPosition : 100 - iFrameLocalStorage.popupArrowPosition) + "%";
     }
@@ -265,7 +266,8 @@ function initButton(sfHost, inInspector) {
 
     let popupSrc = chrome.runtime.getURL("popup.html");
     let popupEl = document.createElement("iframe");
-    let isVertical = localStorage.getItem("popupArrowOrientation") == "vertical";
+    // default to vertical
+    let isVertical = localStorage.getItem("popupArrowOrientation") !== "horizontal";
     popupEl.className = "insext-popup";
     const classesToAdd = isVertical ? ["vertical"] : ["horizontal"];
     setPopupClasses(popupEl, classesToAdd);
@@ -288,7 +290,8 @@ function initButton(sfHost, inInspector) {
           } else {
             insextClasses.push("horizontal-centered");
           }
-        } else if (iFrameLocalStorage.popupArrowOrientation == "vertical") {
+        } else {
+          // Vertical or hasn't been set yet (default)
           insextClasses.push("vertical");
           if (iFrameLocalStorage.popupArrowPosition >= 55) {
             insextClasses.push("vertical-up");
