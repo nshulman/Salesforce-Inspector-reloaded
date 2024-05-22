@@ -1020,6 +1020,7 @@ function RecordTable(vm) {
     },
     updateColumnsVisibility() {
       let newColVisibilities = [];
+      /* eslint-disable no-unused-vars */
       for (const [_, el] of rt.table[1].entries()) {
         if (typeof el == "object" && el !== null && vm.prefHideRelations){
           newColVisibilities.push(false);

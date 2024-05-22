@@ -13,7 +13,7 @@ export async function getObjectSetupLinks(sfHost, sobjectName) {
 }
 
 function getFieldDefinitionSetupLinks(sfHost, fieldName, fieldDefinition, isCustomSetting, isCustomMetadata) {
-  if(fieldDefinition?.DurableId){
+  if (fieldDefinition?.DurableId){
     let durableId = fieldDefinition.DurableId?.split(".");
     let entityDurableId = durableId[0];
     let fieldDurableId = durableId[durableId.length - 1];
@@ -26,6 +26,7 @@ function getFieldDefinitionSetupLinks(sfHost, fieldName, fieldDefinition, isCust
         : `https://${sfHost}/p/setup/field/StandardFieldAttributes/d?id=${fieldDurableId}&type=${entityDurableId}`
     };
   }
+  return "";
 }
 
 export async function getFieldSetupLinks(sfHost, sobjectName, fieldName, isCustomSetting) {
