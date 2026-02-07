@@ -138,6 +138,13 @@ a.download-salesforce {
   transition: opacity 0.2s linear;
 }
 
+/* z-Index fix for slds-resizable__divider
+since background is static and can't get a higher z-index, we need to lower the z-index of the divider
+*/
+.sfir-divider-lower-z {
+    z-index: 50 !important;
+}
+
 /* Agentforce Modal Styles - shared across pages */
 .sfir-agentforce-textarea {
   min-height: 60vh;

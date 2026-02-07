@@ -1332,7 +1332,7 @@ function LogsTable({model, hideButtonsOption}) {
         className: "slds-resizable__handle",
         onMouseDown: (e) => model.startResize(columnKey, e)
       },
-      h("span", {className: "slds-resizable__divider"})
+      h("span", {className: "slds-resizable__divider sfir-divider-lower-z"})
       )
     )
     );
@@ -1415,21 +1415,20 @@ function LogsTable({model, hideButtonsOption}) {
                 })
               ),
               h("label", {className: "slds-checkbox_toggle slds-grid", title: model.fetchLogBodies ? "Disable fetching log bodies for action details" : "Enable fetching log bodies for action details"},
-                  h("span", {className: "slds-form-element__label slds-m-bottom_none"}, "Fetch Bodies"),
-                  h("input", {
-                    type: "checkbox",
-                    role: "switch",
-                    checked: model.fetchLogBodies,
-                    onChange: () => model.toggleFetchLogBodies(),
-                    "aria-describedby": "fetch-bodies-toggle"
-                  }),
+                  h("span", {className: "slds-form-element__label slds-m-bottom_none slds-m-top_xx-small"}, "Fetch Bodies"),
+                    h("input", {
+                      type: "checkbox",
+                      role: "switch",
+                      checked: model.fetchLogBodies,
+                      onChange: () => model.toggleFetchLogBodies(),
+                      "aria-describedby": "fetch-bodies-toggle"
+                    }),
                   h("span", {id: "fetch-bodies-toggle", className: "slds-checkbox_faux_container"},
                     h("span", {className: "slds-checkbox_faux"}),
                     h("span", {className: "slds-checkbox_on"}, "Enabled"),
                     h("span", {className: "slds-checkbox_off"}, "Disabled")
                   )
                 )
-
             )
           )
         ),
@@ -1446,9 +1445,9 @@ function LogsTable({model, hideButtonsOption}) {
             h("button", {className: "slds-button slds-button_neutral slds-m-right_x-small", title: "Set Debug Trace Flags in the Salesforce Debug Logs Page (New window)",
                 onClick: () => window.open(`https://${model.sfHost}/lightning/setup/ApexDebugLogs/home`, "_blank")},
               h("svg", {className: "slds-button__icon slds-button__icon_left", "aria-hidden": "true"},
-                h("use", {xlinkHref: "symbols.svg#new_window"})
+                h("use", {xlinkHref: "symbols.svg#priority"})
               ),
-              "Set Flags"
+              "Trace Flags"
             ),
             h("button", {
               className: "slds-button slds-button_destructive",
